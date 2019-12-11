@@ -129,4 +129,5 @@ print(paste('Accuracy',1-misClasificError))
 
 
 #Compare LR and SEM predictions
-
+plot(bn_predictions_actual, lr_predictions_actual,col="red",pch=19 ,xlab="SEM Predictions", ylab="Logistic Regression Predictions")
+abline( a=0, b=1 )
