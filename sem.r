@@ -3,6 +3,7 @@ library(dagitty)
 library(bnlearn)
 library(semPlot)
 library(ROCR)
+library(glmnet)
 
 #Read data
 df <- read.table("divorce2.csv", header = TRUE,sep = ",", colClasses=c("NULL", 
@@ -89,18 +90,24 @@ adjust7 <- adjustmentSets(g, "EmotionalDistance","Divorce")
 #{Aggression}
 adjust8 <- adjustmentSets(g, "SelfReflection","Divorce")
 
-#Do linear regression on adjusted set to get the causal effect
-lm1_biased_Aggr <- lm(Divorce ~ Aggression, df)
-lm1_biased_KP <- lm(Divorce ~ KnowingPartner, df)
-lm1_biased_RC <- lm(Divorce ~ ResolvingConflicts, df)
-lm1 <- lm(Divorce ~ Aggression + KnowingPartner + ResolvingConflicts, df)
-lm2 <- lm(Divorce ~ KnowingPartner, df)
-lm3 <- lm(Divorce ~ SelfReflection, df)
-lm4 <- lm(Divorce ~ Avoidance, df)
-lm5_biased_QT <- lm(Divorce ~ QualityTime, df)
-lm5 <- lm(Divorce ~ QualityTime + Aggression + EmotionalDistance + GoalAlignment, df)
-lm6_biased_ED <- lm(Divorce ~ EmotionalDistance, df)
-lm6 <- lm(Divorce ~ EmotionalDistance + Aggression + ResolvingConflicts, df)
+#Do logistic regression on adjusted set to get the causal effect
+lr1 <- glm(Divorce ~ Aggression, df, family = "binomial")
+lr2 <- glm(Divorce ~ KnowingPartner, df, family = "binomial")
+lr3 <- glm(Divorce ~ ResolvingConflicts, df, family = "binomial")
+lr4 <- glm(Divorce ~ Avoidance, df, family = "binomial")
+lr5 <- glm(Divorce ~ QualityTime, df, family = "binomial")
+lr6 <- glm(Divorce ~ GoalAlignment, df, family = "binomial")
+lr7 <- glm(Divorce ~ EmotionalDistance, df, family = "binomial")
+lr8 <- glm(Divorce ~ SelfReflection, df, family = "binomial")
+
+#Aggr,KP,RC
+unb1 <- coef(glmnet(as.matrix(df[c(1,5,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+#QT, Aggr,ED,GA
+unb2 <- coef(glmnet(as.matrix(df[c(2,3,4,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+#Aggr, ED, GA
+unb3 <- coef(glmnet(as.matrix(df[c(3,4,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+#ED,Aggr
+unb4 <- coef(glmnet(as.matrix(df[c(3,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
 
 #Predictions with SEM model
 net <-model2network(toString(g,"bnlearn"))
