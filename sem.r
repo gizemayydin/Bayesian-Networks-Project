@@ -22,9 +22,42 @@ lg_labels_test <- lg_labels[c(137:170)]
 train_data <- shuffled[c(1:136),]
 test_data <- shuffled[c(137:170),]
 
-#Initial DAG
-#TODO: Draw initial DAG and export from daggity
+# original dag
+orig <- dagitty('dag {
+  Aggression [exposure,pos="0.031,0.025"]
+  Avoidance [exposure,pos="0.042,0.264"]
+  Divorce [outcome,pos="1.000,1.000"]
+  EmotionalDistance [exposure,pos="0.519,0.332"]
+  GoalAlignment [exposure,pos="0.200,0.974"]
+  KnowingPartner [exposure,pos="0.276,0.800"]
+  QualityTime [exposure,pos="0.520,0.773"]
+  ResolvingConflicts [exposure,pos="0.992,0.103"]
+  SelfReflection [exposure,pos="0.538,-0.052"]
+  Aggression -> Divorce
+  Aggression -> EmotionalDistance
+  Aggression -> ResolvingConflicts
+  Avoidance -> Divorce
+  Avoidance -> EmotionalDistance
+  Avoidance -> GoalAlignment
+  Avoidance -> ResolvingConflicts
+  EmotionalDistance -> Divorce
+  EmotionalDistance -> QualityTime
+  GoalAlignment -> Divorce
+  GoalAlignment -> QualityTime
+  KnowingPartner -> Divorce
+  KnowingPartner -> ResolvingConflicts
+  QualityTime -> Divorce
+  ResolvingConflicts -> Divorce
+  ResolvingConflicts -> EmotionalDistance
+  SelfReflection -> Aggression
+  SelfReflection -> Divorce
+  SelfReflection -> ResolvingConflicts
+}
+')
 #Run the tests
+impliedConditionalIndependencies(orig)
+localTests(orig, df)
+
 
 #Final DAG
 #model with most edges to divorce removed, this is the optimized model
@@ -136,8 +169,6 @@ lr_predictions_labels <- ifelse(lr_predictions_actual > 0.5,1,0)
 # accuracy 
 misClasificError <- mean(lr_predictions_labels != test_data$Divorce)
 print(paste('Accuracy',1-misClasificError))
-
-
 
 #Compare LR and SEM predictions
 plot(bn_predictions_actual, lr_predictions_actual,col="red",pch=19 ,xlab="SEM Predictions", ylab="Logistic Regression Predictions")
