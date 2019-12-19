@@ -65,3 +65,6 @@ cormat<-cor(df2[-c(55)])
 corrplot(cormat, diag = FALSE,
          tl.pos = "td", tl.cex = 0.5, method = "color", type = "upper")
 
+pdf(file = "yourPlots.png")
+pairs(df)
+dev.off()  # important!

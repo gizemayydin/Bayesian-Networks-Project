@@ -12,6 +12,7 @@ df <- read.table("divorce2.csv", header = TRUE,sep = ",", colClasses=c("NULL",
 labels <- read.table("divorce.csv", header = TRUE,sep = ";")[ ,c('Class')]
 df$Divorce= labels
 df$Divorce[df$Divorce == -1] <- 1
+df$Intercept = 1
 
 #Divide data into train/test sets
 shuffled <- df[sample(nrow(df)),]
@@ -91,23 +92,26 @@ adjust7 <- adjustmentSets(g, "EmotionalDistance","Divorce")
 adjust8 <- adjustmentSets(g, "SelfReflection","Divorce")
 
 #Do logistic regression on adjusted set to get the causal effect
-lr1 <- glm(Divorce ~ Aggression, df, family = "binomial")
-lr2 <- glm(Divorce ~ KnowingPartner, df, family = "binomial")
-lr3 <- glm(Divorce ~ ResolvingConflicts, df, family = "binomial")
-lr4 <- glm(Divorce ~ Avoidance, df, family = "binomial")
-lr5 <- glm(Divorce ~ QualityTime, df, family = "binomial")
-lr6 <- glm(Divorce ~ GoalAlignment, df, family = "binomial")
-lr7 <- glm(Divorce ~ EmotionalDistance, df, family = "binomial")
-lr8 <- glm(Divorce ~ SelfReflection, df, family = "binomial")
+lr1 <- glmnet(as.matrix(df[c(6,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr2 <- glmnet(as.matrix(df[c(5,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr3 <- glmnet(as.matrix(df[c(1,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr4 <- glmnet(as.matrix(df[c(7,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr5 <- glmnet(as.matrix(df[c(2,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr6 <- glmnet(as.matrix(df[c(4,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr7 <- glmnet(as.matrix(df[c(3,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+lr8 <- glmnet(as.matrix(df[c(8,10)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
+
+
+
 
 #Aggr,KP,RC
-unb1 <- coef(glmnet(as.matrix(df[c(1,5,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+unb1 <- glmnet(as.matrix(df[c(1,5,6)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
 #QT, Aggr,ED,GA
-unb2 <- coef(glmnet(as.matrix(df[c(2,3,4,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+unb2 <- glmnet(as.matrix(df[c(2,3,4,6)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
 #Aggr, ED, GA
-unb3 <- coef(glmnet(as.matrix(df[c(3,4,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+unb3 <- glmnet(as.matrix(df[c(3,4,6)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
 #ED,Aggr
-unb4 <- coef(glmnet(as.matrix(df[c(3,6)]),as.matrix(df[c(9)]), family="binomial"),s=0.000001)
+unb4 <- glmnet(as.matrix(df[c(3,6)]),as.matrix(df[c(9)]), family="binomial",alpha=0,lambda=0.01)
 
 #Predictions with SEM model
 net <-model2network(toString(g,"bnlearn"))
